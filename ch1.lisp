@@ -12,10 +12,10 @@
     (let ((mgl-gnuplot:*command-stream*
             (make-broadcast-stream mgl-gnuplot:*command-stream*
                                    *standard-output*)))
-      commands
       (mgl-gnuplot:plot*
        (mapcar (lambda (data) (mgl-gnuplot:data data))
-               datas))
+               datas)
+       :commands commands)
       )))
 
 (defun line (x)
