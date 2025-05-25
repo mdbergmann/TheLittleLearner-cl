@@ -21,24 +21,33 @@ The estimated ϑ can be used to predict a `y' for an `x'"
 (defvar *line-xs* '(2.0 1.0 4.0 3.0))
 (defvar *line-ys* '(1.8 1.2 4.2 3.3))
 
-(defun plot-line-xs-ys--with-estimated-ϑ ()
-  "Plots the data set with an estimated line which we get ϑ from."
-  (let ((data (loop :for x :in *line-xs*
-                    :for y :in *line-ys*
-                    :collect `(,x ,y 1.0 1)))
-        (approx-line-data '((0.0 0.0) (4.5 4.5))))
-    (plot-data `(,(cons
-                   "using 1:2:3:4 with points lc rgb variable ps variable pt 7 title 'data set'"
-                   data)
-                 ,(cons
-                   "using 1:2 with lines lc 4 lw 2 title 'approx line"
-                   approx-line-data))
+(defun %max (ls)
+  (reduce #'max ls :initial-value 0))
+
+(defun %plot-line-xs-ys--with-estimated-ϑ (xs ys &optional approx-line-xys)
+  (let ((data (loop :for x :in xs
+                    :for y :in ys
+                    :collect `(,x ,y 1.0 1))))
+    (plot-data
+     `(,(cons
+         "using 1:2:3:4 with points lc rgb variable ps variable pt 7 title 'data set'"
+         data)
+       ,(if (null approx-line-xys) nil
+            (cons
+             "using 1:2 with lines lc 4 lw 2 title 'approx line'"
+             approx-line-xys)))
                ;;(mgl-gnuplot:command "set style data linespoints")
                ;;(mgl-gnuplot:command "set style data points")
                ;;(mgl-gnuplot:command "set pointsize 2.0")
-               (mgl-gnuplot:command "set xrange [0:5]")
-               (mgl-gnuplot:command "set yrange [0:5]")
+               (mgl-gnuplot:command (format nil "set xrange [0:~f]" (+ (%max xs) 2)))
+               (mgl-gnuplot:command (format nil "set yrange [0:~f]" (+ (%max ys) 2)))
                (mgl-gnuplot:command "set view map"))))
+
+(defun plot-line-xs-ys--with-estimated-ϑ ()
+  "Plots the data set with an estimated line which we get ϑ from."
+  (%plot-line-xs-ys--with-estimated-θ *line-xs*
+                                      *line-ys*
+                                      '((0.0 0.0) (4.5 4.5))))
 
 ;; -------------------------
 ;; plotting
