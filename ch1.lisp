@@ -21,8 +21,24 @@ The estimated ϑ can be used to predict a `y' for an `x'"
 (defvar *line-xs* '(2.0 1.0 4.0 3.0))
 (defvar *line-ys* '(1.8 1.2 4.2 3.3))
 
+;; -------------------------
+;; plotting
+;; -------------------------
+
 (defun %max (ls)
   (reduce #'max ls :initial-value 0))
+
+(setf mgl-gnuplot::*gnuplot-binary* "/opt/homebrew/bin/gnuplot")
+
+(defmacro plot-data (datas &rest commands)
+  `(mgl-gnuplot:with-session ()
+     (let ((mgl-gnuplot:*command-stream*
+             (make-broadcast-stream mgl-gnuplot:*command-stream*
+                                    *standard-output*)))
+       ,@commands
+       (mgl-gnuplot:plot*
+        (mapcar (lambda (data) (mgl-gnuplot:data* (cdr data) (car data)))
+                ,datas)))))
 
 (defun %plot-line-xs-ys--with-estimated-ϑ (xs ys &optional approx-line-xys)
   (let ((data (loop :for x :in xs
@@ -48,19 +64,3 @@ The estimated ϑ can be used to predict a `y' for an `x'"
   (%plot-line-xs-ys--with-estimated-θ *line-xs*
                                       *line-ys*
                                       '((0.0 0.0) (4.5 4.5))))
-
-;; -------------------------
-;; plotting
-;; -------------------------
-
-(setf mgl-gnuplot::*gnuplot-binary* "/opt/homebrew/bin/gnuplot")
-
-(defmacro plot-data (datas &rest commands)
-  `(mgl-gnuplot:with-session ()
-     (let ((mgl-gnuplot:*command-stream*
-             (make-broadcast-stream mgl-gnuplot:*command-stream*
-                                    *standard-output*)))
-       ,@commands
-       (mgl-gnuplot:plot*
-        (mapcar (lambda (data) (mgl-gnuplot:data* (cdr data) (car data)))
-                ,datas)))))
