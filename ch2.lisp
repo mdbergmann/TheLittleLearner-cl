@@ -19,24 +19,24 @@
 (defun %ranked (tensor accu)
   (cond
     ((numberp tensor) accu)
-    (t (%ranked (first tensor) (1+ accu)))))
+    (t (%ranked (aref tensor 0) (1+ accu)))))
 
 (test rank-test
   (is (= 0 (rank 1)))
-  (is (= 1 (rank '(1))))
-  (is (= 2 (rank '((1))))))
+  (is (= 1 (rank #(1))))
+  (is (= 2 (rank #(#(1))))))
 
 (defun shape (tensor)
   (cond
     ((numberp tensor) nil)
-    (t (cons (length tensor) (shape (first tensor))))))
+    (t (cons (length tensor) (shape (aref tensor 0))))))
 
 (test shape-test
   (is (equalp nil (shape 0)))
-  (is (equalp '(1) (shape '(1))))
-  (is (equalp '(4) (shape '(3 2 6 7))))
-  (is (equalp '(2 1) (shape '((1) (2)))))
-  (is (equalp '(2 3 1) (shape '(((5) (6) (8)) ((7) (9) (5)))))))
+  (is (equalp '(1) (shape #(1))))
+  (is (equalp '(4) (shape #(3 2 6 7))))
+  (is (equalp '(2 1) (shape #(#(1) #(2)))))
+  (is (equalp '(2 3 1) (shape #(#(#(5) #(6) #(8)) #((7) #(9) #(5)))))))
 
 ;; length of shape of tensor is equal to the rank of the tensor.
 
@@ -51,8 +51,15 @@
 
 (defun %summed (tensor i accu)
   (cond
-    ((zerop i) (+ (first tensor) accu))
-    (t (%summed tensor (1- i) (+ (nth i tensor) accu)))))
+    ((zerop i) (+ (aref tensor 0) accu))
+    (t (%summed tensor (1- i) (+ (aref tensor i) accu)))))
 
 (test sum-1-test
-  (is (= 36.0 (sum-1 '(10.0 12.0 14.0)))))
+  (is (= 36.0 (sum-1 #(10.0 12.0 14.0)))))
+
+
+;;; ----- running tests --------
+
+(run! 'rank-test)
+(run! 'shape-test)
+(run! 'sum-1-test)
