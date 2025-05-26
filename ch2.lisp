@@ -40,3 +40,19 @@
 
 ;; length of shape of tensor is equal to the rank of the tensor.
 
+;;; ------------------------
+;;; Interlude I -- +
+;;; ------------------------
+
+;; summed tensor is rank-1 of the original tensor
+
+(defun sum-1 (tensor)
+  (%summed tensor (1- (length tensor)) 0.0))
+
+(defun %summed (tensor i accu)
+  (cond
+    ((zerop i) (+ (first tensor) accu))
+    (t (%summed tensor (1- i) (+ (nth i tensor) accu)))))
+
+(test sum-1-test
+  (is (= 36.0 (sum-1 '(10.0 12.0 14.0)))))
