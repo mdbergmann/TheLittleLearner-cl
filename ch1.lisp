@@ -18,8 +18,8 @@ The estimated ϑ can be used to predict a `y' for an `x'"
     ;; predicted 'y'
     (+ (* (first ϑ) x) (second ϑ))))
 
-(defvar *line-xs* '(2.0 1.0 4.0 3.0))
-(defvar *line-ys* '(1.8 1.2 4.2 3.3))
+(defvar *line-xs* #(2.0 1.0 4.0 3.0))
+(defvar *line-ys* #(1.8 1.2 4.2 3.3))
 
 ;; -------------------------
 ;; plotting
@@ -41,8 +41,8 @@ The estimated ϑ can be used to predict a `y' for an `x'"
                 ,datas)))))
 
 (defun %plot-line-xs-ys--with-estimated-ϑ (xs ys &optional approx-line-xys)
-  (let ((data (loop :for x :in xs
-                    :for y :in ys
+  (let ((data (loop :for x :across xs
+                    :for y :across ys
                     :collect `(,x ,y 1.0 1))))
     (plot-data
      `(,(cons
