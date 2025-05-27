@@ -39,20 +39,24 @@
   (is (equalp '(2 1) (shape #(#(1) #(2)))))
   (is (equalp '(2 3 1) (shape #(#(#(5) #(6) #(8)) #((7) #(9) #(5)))))))
 
-
-(defun t+ (&rest tensors)
+(defun t-op (op error-topic &rest tensors)
   (assert (> (length tensors) 0))
-  (labels ((add-tensors (a b)
+  (labels ((tt (a b)
              (cond
                ((numberp a)
                 (if (numberp b)
-                    (+ a b)
-                    (map 'vector (lambda (x) (add-tensors a x)) b)))
-               ((numberp b) (map 'vector (lambda (x) (add-tensors x b)) a))
+                    (funcall op a b)
+                    (map 'vector (lambda (x) (tt a x)) b)))
+               ((numberp b)
+                (map 'vector (lambda (x) (tt x b)) a))
                ((and (arrayp a) (arrayp b))
-                (map 'vector #'add-tensors a b))
-               (t (error "Incompatible tensor shapes for addition.")))))
-    (reduce #'add-tensors tensors)))
+                (map 'vector #'tt a b))
+               (t (error "Incompatible tensor shapes for ~A." error-topic)))))
+    (reduce #'tt tensors)))
+
+
+(defun t+ (&rest tensors)
+  (apply #'t-op #'+ "addition" tensors))
 
 (test plus-test
   (is (= 3 (t+ 1 2)))
@@ -69,18 +73,7 @@
   (signals simple-error (t+)))
 
 (defun t* (&rest tensors)
-  (assert (> (length tensors) 0))
-  (labels ((multiply-tensors (a b)
-             (cond
-               ((numberp a)
-                (if (numberp b)
-                    (* a b)
-                    (map 'vector (lambda (x) (multiply-tensors a x)) b)))
-               ((numberp b) (map 'vector (lambda (x) (multiply-tensors x b)) a))
-               ((and (arrayp a) (arrayp b))
-                (map 'vector #'multiply-tensors a b))
-               (t (error "Incompatible tensor shapes for multiplication.")))))
-    (reduce #'multiply-tensors tensors)))
+  (apply #'t-op #'* "multiplication" tensors))
 
 (test multiply-test
   (is (= 2 (t* 1 2)))
