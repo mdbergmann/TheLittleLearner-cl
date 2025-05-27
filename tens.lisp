@@ -97,8 +97,9 @@
   (signals simple-error (t*)))
 
 ;;; ----- running tests --------
-(run! 'multiply-test)
 
 (run! 'rank-test)
 (run! 'shape-test)
 (run! 'plus-test)
+(run! 'multiply-test)
+
