@@ -5,8 +5,8 @@
            #:shape
            #:t+
            #:t*
-           #:t-sqrt
-           #:t-sum))
+           #:tsqrt
+           #:tsum))
 
 (in-package :tll.tens)
 
@@ -92,7 +92,7 @@
   (is (equalp #(12 24 20) (t* 4 #(3 6 5))))
   (signals simple-error (t*)))
 
-(defun t-sqrt (&rest tensors)
+(defun tsqrt (&rest tensors)
   (assert (= (length tensors) 1))
   (labels ((ts (a)
              (cond
@@ -105,12 +105,12 @@
     (ts (first tensors))))
 
 (test sqrt-test
-  (is (= 2 (t-sqrt 4)))
-  (is (equalp #(2 3) (t-sqrt #(4 9))))
+  (is (= 2 (tsqrt 4)))
+  (is (equalp #(2 3) (tsqrt #(4 9))))
   (is (equalp #(#(2) #(3))
-              (t-sqrt #(#(4) #(9)))))
-  (signals simple-error (t-sqrt))
-  (signals simple-error (t-sqrt 1 2)))
+              (tsqrt #(#(4) #(9)))))
+  (signals simple-error (tsqrt))
+  (signals simple-error (tsqrt 1 2)))
 
 (defun %sum-1 (tensor)
   (%summed tensor (1- (length tensor)) 0.0))
@@ -120,7 +120,7 @@
     ((zerop i) (+ (aref tensor 0) accu))
     (t (%summed tensor (1- i) (+ (aref tensor i) accu)))))
 
-(defun t-sum (&rest tensors)
+(defun tsum (&rest tensors)
   "Sum across the first dimension, reducing rank by 1."
   (assert (= (length tensors) 1))
   (labels ((ts (a)
@@ -134,13 +134,13 @@
     (ts (first tensors))))
 
 (test sum-test
-  (is (= 6.0 (t-sum #(1.0 2.0 3.0))))
-  (is (equalp #(3.0 7.0) (t-sum #(#(1.0 2.0) #(3.0 4.0)))))
+  (is (= 6.0 (tsum #(1.0 2.0 3.0))))
+  (is (equalp #(3.0 7.0) (tsum #(#(1.0 2.0) #(3.0 4.0)))))
   (is (equalp #(#(3.0) #(7.0))
-              (t-sum #(#(#(1.0 2.0)) #(#(3.0 4.0))))))
-  (signals simple-error (t-sum))
-  (signals simple-error (t-sum 1 2))
-  (signals simple-error (t-sum 1)))
+              (tsum #(#(#(1.0 2.0)) #(#(3.0 4.0))))))
+  (signals simple-error (tsum))
+  (signals simple-error (tsum 1 2))
+  (signals simple-error (tsum 1)))
 
 (test sum-1-test
   (is (= 36.0 (%sum-1 #(10.0 12.0 14.0)))))

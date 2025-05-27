@@ -9,6 +9,7 @@
 (defun line (x)
   "`w' and `b' are 'parameters' (or the parameter set) of line.
 `x' is the argument of line.
+`x' can either be a scalar for a single point, or a tensor.
 
 Finding the parameters (w and b, as _members_ of ϑ (little theta)) from a data set (x) is known as 'learning'.
 Where `w' is ϑ_0 and `b' is ϑ_1.
