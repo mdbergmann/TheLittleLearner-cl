@@ -1,5 +1,5 @@
 (defpackage :tll.ch1
-  (:use :cl)
+  (:use :cl :tens)
   (:nicknames :ch1)
   ;;(:export #:)
   )
@@ -16,7 +16,7 @@ Where `w' is ϑ_0 and `b' is ϑ_1.
 The estimated ϑ can be used to predict a `y' for an `x'"
   (lambda (ϑ)
     ;; predicted 'y'
-    (+ (* (first ϑ) x) (second ϑ))))
+    (t+ (t* (first ϑ) x) (second ϑ))))
 
 (defvar *line-xs* #(2.0 1.0 4.0 3.0))
 (defvar *line-ys* #(1.8 1.2 4.2 3.3))
