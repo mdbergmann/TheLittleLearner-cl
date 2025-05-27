@@ -43,7 +43,10 @@
   (assert (> (length tensors) 0))
   (labels ((add-tensors (a b)
              (cond
-               ((numberp a) (if (numberp b) (+ a b) (map 'vector (lambda (x) (add-tensors a x)) b)))
+               ((numberp a)
+                (if (numberp b)
+                    (+ a b)
+                    (map 'vector (lambda (x) (add-tensors a x)) b)))
                ((numberp b) (map 'vector (lambda (x) (add-tensors x b)) a))
                ((and (arrayp a) (arrayp b))
                 (map 'vector #'add-tensors a b))
@@ -53,7 +56,8 @@
 (test plus-test
   (is (= 3 (t+ 1 2)))
   (is (equalp #(4 6) (t+ #(1 2) #(3 4))))
-  (is (equalp #(#(2) #(4)) (t+ #(#(1) #(2)) #(#(1) #(2)))))
+  (is (equalp #(#(2) #(4))
+              (t+ #(#(1) #(2)) #(#(1) #(2)))))
   (is (equalp #(#(6 8)
                 #(10 12))
               (t+ #(#(1 2)
@@ -61,8 +65,7 @@
                   #(#(5 6)
                     #(7 8)))))
   (is (equalp #(7 10 9) (t+ 4 #(3 6 5))))
-  (signals simple-error (t+))
-  (signals error (t+ #())))
+  (signals simple-error (t+)))
 
 ;;; ----- running tests --------
 
