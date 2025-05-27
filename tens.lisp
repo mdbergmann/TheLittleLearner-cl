@@ -41,12 +41,14 @@
 
 (defun t+ (&rest tensors)
   (assert (> (length tensors) 0))
-  (assert (every (lambda (ten) (equalp (shape ten)
-                                  (shape (car tensors)))) tensors)
-          nil "Tensors don't have the same shape!")
-  (if (numberp (car tensors))
-      (reduce #'+ tensors)
-      (apply #'map 'vector #'t+ tensors)))
+  (labels ((add-tensors (a b)
+             (cond
+               ((numberp a) (if (numberp b) (+ a b) (map 'vector (lambda (x) (add-tensors a x)) b)))
+               ((numberp b) (map 'vector (lambda (x) (add-tensors x b)) a))
+               ((and (arrayp a) (arrayp b))
+                (map 'vector #'add-tensors a b))
+               (t (error "Incompatible tensor shapes for addition.")))))
+    (reduce #'add-tensors tensors)))
 
 (test plus-test
   (is (= 3 (t+ 1 2)))
