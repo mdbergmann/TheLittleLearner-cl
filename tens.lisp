@@ -2,7 +2,8 @@
   (:use :cl :fiveam)
   (:nicknames :tens)
   (:export #:rank
-           #:shape))
+           #:shape
+           #:t*))
 
 (in-package :tll.tens)
 
@@ -67,7 +68,36 @@
   (is (equalp #(7 10 9) (t+ 4 #(3 6 5))))
   (signals simple-error (t+)))
 
+(defun t* (&rest tensors)
+  (assert (> (length tensors) 0))
+  (labels ((multiply-tensors (a b)
+             (cond
+               ((numberp a)
+                (if (numberp b)
+                    (* a b)
+                    (map 'vector (lambda (x) (multiply-tensors a x)) b)))
+               ((numberp b) (map 'vector (lambda (x) (multiply-tensors x b)) a))
+               ((and (arrayp a) (arrayp b))
+                (map 'vector #'multiply-tensors a b))
+               (t (error "Incompatible tensor shapes for multiplication.")))))
+    (reduce #'multiply-tensors tensors)))
+
+(test multiply-test
+  (is (= 2 (t* 1 2)))
+  (is (equalp #(3 8) (t* #(1 2) #(3 4))))
+  (is (equalp #(#(1) #(4))
+              (t* #(#(1) #(2)) #(#(1) #(2)))))
+  (is (equalp #(#(5 12)
+                #(21 32))
+              (t* #(#(1 2)
+                    #(3 4))
+                  #(#(5 6)
+                    #(7 8)))))
+  (is (equalp #(12 24 20) (t* 4 #(3 6 5))))
+  (signals simple-error (t*)))
+
 ;;; ----- running tests --------
+(run! 'multiply-test)
 
 (run! 'rank-test)
 (run! 'shape-test)
