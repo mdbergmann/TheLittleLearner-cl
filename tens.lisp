@@ -4,7 +4,8 @@
   (:export #:rank
            #:shape
            #:t+
-           #:t*))
+           #:t*
+           #:t-sqrt))
 
 (in-package :tll.tens)
 
@@ -90,10 +91,31 @@
   (is (equalp #(12 24 20) (t* 4 #(3 6 5))))
   (signals simple-error (t*)))
 
+(defun t-sqrt (&rest tensors)
+  (assert (= (length tensors) 1))
+  (labels ((ts (a)
+             (cond
+               ((numberp a)
+                (sqrt a))
+               ((arrayp a)
+                (map 'vector #'ts a))
+               (t
+                (error "Incompatible tensor shapes for ~A." "square root")))))
+    (ts (first tensors))))
+
+(test sqrt-test
+  (is (= 2 (t-sqrt 4)))
+  (is (equalp #(2 3) (t-sqrt #(4 9))))
+  (is (equalp #(#(2) #(3))
+              (t-sqrt #(#(4) #(9)))))
+  (signals simple-error (t-sqrt))
+  (signals simple-error (t-sqrt 1 2)))
+
 ;;; ----- running tests --------
 
 (run! 'rank-test)
 (run! 'shape-test)
 (run! 'plus-test)
 (run! 'multiply-test)
+(run! 'sqrt-test)
 
