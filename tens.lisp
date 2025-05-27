@@ -3,6 +3,7 @@
   (:nicknames :tens)
   (:export #:rank
            #:shape
+           #:t+
            #:t*))
 
 (in-package :tll.tens)
@@ -39,7 +40,7 @@
   (is (equalp '(2 1) (shape #(#(1) #(2)))))
   (is (equalp '(2 3 1) (shape #(#(#(5) #(6) #(8)) #((7) #(9) #(5)))))))
 
-(defun t-op (op error-topic &rest tensors)
+(defun %t-op (op error-topic &rest tensors)
   (assert (> (length tensors) 0))
   (labels ((tt (a b)
              (cond
@@ -56,7 +57,7 @@
 
 
 (defun t+ (&rest tensors)
-  (apply #'t-op #'+ "addition" tensors))
+  (apply #'%t-op #'+ "addition" tensors))
 
 (test plus-test
   (is (= 3 (t+ 1 2)))
@@ -73,7 +74,7 @@
   (signals simple-error (t+)))
 
 (defun t* (&rest tensors)
-  (apply #'t-op #'* "multiplication" tensors))
+  (apply #'%t-op #'* "multiplication" tensors))
 
 (test multiply-test
   (is (= 2 (t* 1 2)))
