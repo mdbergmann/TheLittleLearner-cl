@@ -5,7 +5,8 @@
            #:shape
            #:t+
            #:t*
-           #:t-sqrt))
+           #:t-sqrt
+           #:t-sum))
 
 (in-package :tll.tens)
 
@@ -111,6 +112,40 @@
   (signals simple-error (t-sqrt))
   (signals simple-error (t-sqrt 1 2)))
 
+(defun %sum-1 (tensor)
+  (%summed tensor (1- (length tensor)) 0.0))
+
+(defun %summed (tensor i accu)
+  (cond
+    ((zerop i) (+ (aref tensor 0) accu))
+    (t (%summed tensor (1- i) (+ (aref tensor i) accu)))))
+
+(defun t-sum (&rest tensors)
+  "Sum across the first dimension, reducing rank by 1."
+  (assert (= (length tensors) 1))
+  (labels ((ts (a)
+             (cond
+               ((arrayp a)
+                (if (= (rank a) 1)
+                    (%sum-1 a)
+                    (map 'vector #'ts a)))
+               (t
+                (error "Incompatible tensor shapes for ~A." "summation")))))
+    (ts (first tensors))))
+
+(test sum-test
+  (is (= 6.0 (t-sum #(1.0 2.0 3.0))))
+  (is (equalp #(3.0 7.0) (t-sum #(#(1.0 2.0) #(3.0 4.0)))))
+  (is (equalp #(#(3.0) #(7.0))
+              (t-sum #(#(#(1.0 2.0)) #(#(3.0 4.0))))))
+  (signals simple-error (t-sum))
+  (signals simple-error (t-sum 1 2))
+  (signals simple-error (t-sum 1)))
+
+(test sum-1-test
+  (is (= 36.0 (%sum-1 #(10.0 12.0 14.0)))))
+
+
 ;;; ----- running tests --------
 
 (run! 'rank-test)
@@ -118,4 +153,6 @@
 (run! 'plus-test)
 (run! 'multiply-test)
 (run! 'sqrt-test)
+(run! 'sum-1-test)
+(run! 'sum-test)
 
