@@ -22,6 +22,8 @@ The estimated ϑ can be used to predict a `y' for an `x'"
 (defvar *line-xs* #(2.0 1.0 4.0 3.0))
 (defvar *line-ys* #(1.8 1.2 4.2 3.3))
 
+
+
 ;; -------------------------
 ;; plotting
 ;; -------------------------

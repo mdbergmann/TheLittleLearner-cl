@@ -9,5 +9,6 @@
                 :serapeum)
   :serial t
   :components
-  ((:file "ch1")
+  ((:file "tens")
+   (:file "ch1")
    (:file "ch2")))

@@ -76,11 +76,16 @@
   (is (equalp #(7 10 9) (t+ 4 #(3 6 5))))
   (signals simple-error (t+)))
 
-(defun t* (&rest tensors)
-  (apply #'%t-op #'* "multiplication" tensors))
-
 (defun t- (&rest tensors)
   (apply #'%t-op #'- "subtraction" tensors))
+
+(test minus-test
+  (is (= -1 (t- 1 2)))
+  (is (equalp #(-2 -2) (t- #(1 2) #(3 4))))
+  (signals simple-error (t-)))
+
+(defun t* (&rest tensors)
+  (apply #'%t-op #'* "multiplication" tensors))
 
 (test multiply-test
   (is (= 2 (t* 1 2)))
@@ -95,11 +100,6 @@
                     #(7 8)))))
   (is (equalp #(12 24 20) (t* 4 #(3 6 5))))
   (signals simple-error (t*)))
-
-(test minus-test
-  (is (= -1 (t- 1 2)))
-  (is (equalp #(-2 -2) (t- #(1 2) #(3 4))))
-  (signals simple-error (t-)))
 
 (defun tsqrt (&rest tensors)
   (assert (= (length tensors) 1))
@@ -160,6 +160,7 @@
 (run! 'rank-test)
 (run! 'shape-test)
 (run! 'plus-test)
+(run! 'minus-test)
 (run! 'multiply-test)
 (run! 'sqrt-test)
 (run! 'sum-1-test)
