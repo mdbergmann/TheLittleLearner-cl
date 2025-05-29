@@ -19,6 +19,10 @@
 ;; => tensor rank is the number of left square brackets before the left most scalar
 
 (defun rank (tensor)
+  "Return the rank (nesting depth) of TENSOR.
+
+A scalar has rank 0; a one-dimensional vector rank 1; a matrix (vector of
+vectors) rank 2; and so on."
   (%ranked tensor 0))
 
 (defun %ranked (tensor accu)
@@ -32,6 +36,9 @@
   (is (= 2 (rank #(#(1))))))
 
 (defun shape (tensor)
+  "Return a list with the length of TENSOR along every dimension.
+
+A scalar returns NIL; a 2x3 matrix returns '(2 3), etc."
   (cond
     ((numberp tensor) nil)
     (t (cons (length tensor) (shape (aref tensor 0))))))
@@ -60,6 +67,11 @@
 
 
 (defun t+ (&rest tensors)
+  "Element-wise addition of TENSORS.
+
+Each argument may be a scalar or a tensor of any rank.  Scalars are broadcast
+over array arguments.  Signals a SIMPLE-ERROR when called with no arguments
+or with incompatible shapes."
   (apply #'%t-op #'+ "addition" tensors))
 
 (test plus-test
@@ -77,6 +89,9 @@
   (signals simple-error (t+)))
 
 (defun t- (&rest tensors)
+  "Element-wise subtraction of TENSORS, performed left-to-right.
+
+Broadcasting and error behaviour are identical to T+."
   (apply #'%t-op #'- "subtraction" tensors))
 
 (test minus-test
@@ -106,6 +121,9 @@
   (signals simple-error (t-)))
 
 (defun t* (&rest tensors)
+  "Element-wise multiplication of TENSORS.
+
+Behaves like T+ with respect to broadcasting and error signalling."
   (apply #'%t-op #'* "multiplication" tensors))
 
 (test multiply-test
@@ -123,6 +141,10 @@
   (signals simple-error (t*)))
 
 (defun tsqrt (&rest tensors)
+  "Return the element-wise square root of TENSOR.
+
+Exactly one argument must be supplied; it may be a scalar or any-rank tensor.
+Signals a SIMPLE-ERROR on wrong argument count or shape mismatch."
   (assert (= (length tensors) 1))
   (labels ((ts (a)
              (cond
@@ -151,7 +173,11 @@
     (t (%summed tensor (1- i) (+ (aref tensor i) accu)))))
 
 (defun tsum (&rest tensors)
-  "Sum across the first dimension, reducing rank by 1."
+  "Sum across the first dimension (axis 0) of TENSOR, reducing its rank by one.
+
+Exactly one argument must be supplied and it must be an array of rank ≥ 1.
+Signals a SIMPLE-ERROR when called with the wrong argument count or with a
+scalar."
   (assert (= (length tensors) 1))
   (labels ((ts (a)
              (cond
