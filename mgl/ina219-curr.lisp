@@ -87,8 +87,8 @@
           :collect (list x y))))
 
 (defun generate-training-data (x-min x-max step &key
-                                                        (slope 13.33)
-                                                        (intercept -75.0))
+                                                  (slope 13.33)
+                                                  (intercept -75.0))
   "Generate training data for y = slope * x + intercept"
   (flet ((truncate-to-1-digit (x)
            (/ (truncate (* x 10)) 10.0)))
