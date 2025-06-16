@@ -3,3 +3,5 @@
 /.aider.tags.cache.v4/
 /*.fasl
 *.fasl
+systems.csv
+systems/*
