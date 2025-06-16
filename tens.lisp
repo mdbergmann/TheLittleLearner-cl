@@ -6,6 +6,7 @@
            #:t+
            #:t*
            #:t-
+           #:tsquare
            #:tsqrt
            #:tsum))
 
@@ -73,6 +74,13 @@ Broadcasting and error behaviour are identical to T+."
 
 Behaves like T+ with respect to broadcasting and error signalling."
   (apply #'%t-op #'* "multiplication" tensors))
+
+(defun tsquare (tensor)
+  "Return the element-wise square of TENSOR.
+
+TENSOR may be a scalar or any-rank tensor. Signals a SIMPLE-ERROR on 
+wrong argument count or shape mismatch."
+  (%t-op #'* "square" tensor tensor))
 
 (defun tsqrt (&rest tensors)
   "Return the element-wise square root of TENSOR.
@@ -185,6 +193,37 @@ scalar."
                     #(7 8)))))
   (is (equalp #(12 24 20) (t* 4 #(3 6 5))))
   (signals simple-error (t*)))
+
+(test square-test
+  ;; scalar tests
+  (is (= 4 (tsquare 2)))
+  (is (= 9 (tsquare 3)))
+  (is (= 0 (tsquare 0)))
+  (is (= 1 (tsquare -1)))
+  (is (= 4 (tsquare -2)))
+  
+  ;; rank-1 tensor tests
+  (is (equalp #(1 4 9) (tsquare #(1 2 3))))
+  (is (equalp #(0 1 4) (tsquare #(0 1 2))))
+  (is (equalp #(1 4 9 16) (tsquare #(-1 -2 3 4))))
+  
+  ;; rank-2 tensor tests
+  (is (equalp #(#(1 4) #(9 16))
+              (tsquare #(#(1 2) #(3 4)))))
+  (is (equalp #(#(0 1) #(4 9))
+              (tsquare #(#(0 1) #(2 3)))))
+  (is (equalp #(#(1 4) #(9 16))
+              (tsquare #(#(-1 -2) #(3 4)))))
+  
+  ;; rank-3 tensor tests
+  (is (equalp #(#(#(1 4) #(9 16)) #(#(25 36) #(49 64)))
+              (tsquare #(#(#(1 2) #(3 4)) #(#(5 6) #(7 8))))))
+  
+  ;; edge cases
+  (is (equalp #() (tsquare #())))  ; empty vector
+  
+  ;; error cases
+  (signals simple-error (tsquare))) ; too many arguments
 
 (test sqrt-test
   (is (= 2 (tsqrt 4)))
