@@ -22,7 +22,41 @@ The estimated ϑ can be used to predict a `y' for an `x'"
 (defvar *line-xs* #(2.0 1.0 4.0 3.0))
 (defvar *line-ys* #(1.8 1.2 4.2 3.3))
 
+(defun l2-loss (xs ys target-fun)
+  (lambda (ϑ)
+    ;; pred-ys => predicted ys
+    (let ((pred-ys (funcall
+                    (funcall target-fun xs)
+                    ϑ)))
+      (tsum
+       (tsquare
+        (t- ys pred-ys))))))
 
+#|
+
+Derivative - Rate of change
+---------------------------
+
+By increasing ϑ_0 by 0.0099 the loss was changed by -0.62.
+Rate of change => -0.62 / 0.0099 => -62.63 (whole rate of change)
+=> arbitrary way to find the rate of change
+=> revision of ϑ_0 should not overshoot the ideal loss.
+
+Learning rate (also known as step size, α (alpha))
+---------------------------------------
+Scalar multiplied with the whole rate of change:
+=> α = 0.01
+=> α * -62.63 = -0.6263
+=> Smaller revision
+
+
+Gradient
+————————
+=> tangient (tangente) der loss-curve.
+=> slope of the tangient = gradient
+
+
+|#
 
 ;; -------------------------
 ;; plotting
