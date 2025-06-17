@@ -8,6 +8,7 @@
            #:t-
            #:tsquare
            #:tsqrt
+           #:tdot
            #:tsum))
 
 (in-package :tll.tens)
@@ -97,6 +98,11 @@ Signals a SIMPLE-ERROR on wrong argument count or shape mismatch."
                (t
                 (error "Incompatible tensor shapes for ~A." "square root")))))
     (ts (first tensors))))
+
+(defun tdot (we te)
+  (assert (equalp (shape we) (shape te)))
+  (%sum-1
+   (t* we te)))
 
 (defun %sum-1 (tensor)
   (%summed tensor (1- (length tensor)) 0.0))
@@ -233,6 +239,9 @@ scalar."
   (signals simple-error (tsqrt))
   (signals simple-error (tsqrt 1 2)))
 
+(test dot-test
+  (is (= 41.0 (tdot #(2.0 1.0 7.0) #(8.0 4.0 3.0)))))
+
 (test sum-test
   (is (= 6.0 (tsum #(1.0 2.0 3.0))))
   (is (equalp #(3.0 7.0) (tsum #(#(1.0 2.0) #(3.0 4.0)))))
@@ -253,6 +262,7 @@ scalar."
 (run! 'minus-test)
 (run! 'multiply-test)
 (run! 'sqrt-test)
+(run! 'dot-test)
 (run! 'sum-1-test)
 (run! 'sum-test)
 
