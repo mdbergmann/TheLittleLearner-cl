@@ -32,6 +32,74 @@ The estimated ϑ can be used to predict a `y' for an `x'"
        (tsquare
         (t- ys pred-ys))))))
 
+(defun gradient-list (f ϑ &optional (h 1e-5))
+  "Calculate numerical gradients of function f with respect to each parameter in ϑ"
+  (loop :for i :from 0 :below (length ϑ)
+        :collect
+        (let ((ϑ-plus (copy-list ϑ))
+              (ϑ-minus (copy-list ϑ)))
+          ;; Perturb the i-th parameter by +h and -h
+          (setf (nth i ϑ-plus) (+ (nth i ϑ) h))
+          (setf (nth i ϑ-minus) (- (nth i ϑ) h))
+          ;; Calculate numerical gradient using central difference
+          (/ (- (funcall f ϑ-plus) (funcall f ϑ-minus))
+             (* 2 h)))))
+
+(defun revise (f revs ϑ)
+  "Apply function F iteratively REVS times, starting with initial value ϑ.
+
+F should be a function that takes a parameter vector and returns an updated 
+parameter vector. This function is commonly used for iterative optimization 
+algorithms like gradient descent, where F represents a single parameter 
+update step.
+
+Arguments:
+  F    - A function that takes a parameter vector and returns an updated one
+  REVS - Number of iterations to perform (non-negative integer)
+  ϑ    - Initial parameter vector
+
+Returns the final parameter vector after REVS iterations.
+
+Example:
+  ;; Apply gradient descent updates 1000 times
+  (revise update-function 1000 '(0.0 0.0))"
+  (cond
+    ((zerop revs) ϑ)
+    (t (revise f (1- revs) (funcall f ϑ)))))
+
+(defun gradient-descent (obj-fun ϑ &key (α 0.01) (revs 1000))
+  "Minimize OBJ-FUN using gradient descent optimization starting from initial parameters ϑ.
+
+Gradient descent is an iterative optimization algorithm that finds local minima
+by repeatedly moving in the direction of steepest descent (negative gradient).
+At each iteration, parameters are updated according to the rule:
+  ϑ_new = ϑ_old - α * ∇f(ϑ_old)
+
+Arguments:
+  OBJ-FUN - Objective function to minimize (should return a scalar)
+  ϑ       - Initial parameter vector (list of numbers)
+
+Keyword Arguments:
+  α    - Learning rate/step size (default: 0.01). Controls how large steps
+         to take in the direction of the negative gradient. Too large values
+         may cause overshooting; too small values slow convergence.
+  REVS - Number of iterations to perform (default: 1000)
+
+Returns the optimized parameter vector after REVS iterations.
+
+The function uses numerical differentiation to approximate gradients, which
+may be less accurate than analytical gradients but works for any differentiable
+function.
+
+Example:
+  ;; Minimize a quadratic loss function
+  (gradient-descent loss-function '(0.0 0.0) :α 0.001 :revs 5000)"
+  (let ((f (lambda (θ)
+             (mapcar (lambda (p g)
+                       (- p (* α g)))
+                     θ (gradient-list obj-fun θ)))))
+    (revise f revs ϑ)))
+
 #|
 
 Derivative - Rate of change
@@ -53,7 +121,7 @@ Scalar multiplied with the whole rate of change:
 Gradient
 ————————
 => tangient (tangente) der loss-curve.
-=> slope of the tangient = gradient
+=> slope (Gefälle/Neigung) of the tangient = gradient
 
 
 |#
@@ -64,6 +132,9 @@ Gradient
 
 (defun %max (ls)
   (reduce #'max ls :initial-value 0))
+
+(defun %min (ls)
+  (reduce #'min ls))
 
 (setf mgl-gnuplot::*gnuplot-binary* "/opt/homebrew/bin/gnuplot")
 
