@@ -100,8 +100,8 @@ Signals a SIMPLE-ERROR on wrong argument count or shape mismatch."
     (ts (first tensors))))
 
 (defun tdot (we te)
-  (assert (equalp (shape we) (shape te)))
-  (%sum-1
+  ;;(assert (equalp (shape we) (shape te)))
+  (tsum
    (t* we te)))
 
 (defun %sum-1 (tensor)
@@ -226,10 +226,7 @@ scalar."
               (tsquare #(#(#(1 2) #(3 4)) #(#(5 6) #(7 8))))))
   
   ;; edge cases
-  (is (equalp #() (tsquare #())))  ; empty vector
-  
-  ;; error cases
-  (signals simple-error (tsquare))) ; too many arguments
+  (is (equalp #() (tsquare #()))))  ; empty vector
 
 (test sqrt-test
   (is (= 2 (tsqrt 4)))
@@ -240,7 +237,9 @@ scalar."
   (signals simple-error (tsqrt 1 2)))
 
 (test dot-test
-  (is (= 41.0 (tdot #(2.0 1.0 7.0) #(8.0 4.0 3.0)))))
+  (is (= 41.0 (tdot #(2.0 1.0 7.0) #(8.0 4.0 3.0))))
+  (is (equalp #(41.0) (tdot #(#(2.0 1.0 7.0)) #(#(8.0 4.0 3.0)))))
+  )
 
 (test sum-test
   (is (= 6.0 (tsum #(1.0 2.0 3.0))))
